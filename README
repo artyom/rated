@@ -1,0 +1,11 @@
+Command rated implements standalone rate-limiting service with http
+interface.
+
+Its http endpoint accepts requests with non-empty query string used as a key
+to check against limited set of buckets to do token-based rate limiting.
+
+It responds either with 204 is request should be allowed, or 429 if it
+should be limited.
+
+Note that because of limited amount of buckets in use collisions are
+expected.
