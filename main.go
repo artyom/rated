@@ -159,5 +159,3 @@ Expected responses:
 
 Note that because of limited amount of buckets in use collisions are expected.
 `
-
-//go:generate sh -c "go doc >README"
