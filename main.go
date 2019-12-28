@@ -14,7 +14,6 @@ package main
 import (
 	"errors"
 	"flag"
-	"hash/maphash"
 	"net/http"
 	"os"
 	"sync"
@@ -79,19 +78,11 @@ func newLimiter(size, burst int, refillEvery time.Duration) *limiter {
 	if size <= 0 {
 		panic("newLimiter called with non-positive size")
 	}
-	var mu sync.Mutex
-	var hasher maphash.Hash
 	return &limiter{
 		burst:       float64(burst),
 		refillEvery: float64(refillEvery),
 		buckets:     make([]bucket, size),
-		hashFunc: func(s string) uint64 {
-			mu.Lock()
-			defer mu.Unlock()
-			hasher.Reset()
-			hasher.WriteString(s)
-			return hasher.Sum64()
-		},
+		hashFunc:    newHasher(),
 	}
 }
 
