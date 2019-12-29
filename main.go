@@ -14,6 +14,7 @@ package main
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"net/http"
 	"os"
 	"sync"
@@ -96,7 +97,7 @@ type limiter struct {
 
 func (l *limiter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.RawQuery == "" {
-		w.Write([]byte(helpText))
+		fmt.Fprintf(w, helpText, len(l.buckets), int(l.burst), time.Duration(l.refillEvery))
 		return
 	}
 	w.Header().Set("Cache-Control", "no-store")
@@ -149,4 +150,7 @@ Expected responses:
 * 429 — request exceeded rate and should be limited.
 
 Note that because of limited amount of buckets in use collisions are expected.
+
+Current settings are: %d buckets, each holds up to %d tokens
+and refills by one token every %v.
 `
