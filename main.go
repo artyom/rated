@@ -49,8 +49,8 @@ func run(args runArgs) error {
 	if args.Refill <= 0 {
 		return errors.New("-refill argument must be positive")
 	}
-	if args.Burst < 0 {
-		return errors.New("-burst argument cannot be negative")
+	if args.Burst <= 0 {
+		return errors.New("-burst argument must be positive")
 	}
 	if args.Size <= 0 {
 		return errors.New("-buckets argument must be positive")
