@@ -136,9 +136,9 @@ func (l *limiter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
 }
 
-// allow reports true is given key does not exceed allowed rate. If burst
+// allow reports true if given key does not exceed allowed rate. If burst
 // and/or refill values are positive, they are used instead of default burst
-// and refill values set on limiter.
+// and refill values set on the limiter.
 func (l *limiter) allow(key string, burst int, refill time.Duration) bool {
 	now := time.Now()
 	idx := int(l.hashFunc(key) % uint64(len(l.buckets)))
