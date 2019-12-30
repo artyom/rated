@@ -11,6 +11,11 @@
 //
 // Note that because of a limited amount of buckets in use collisions are
 // expected.
+//
+// It is possible to apply custom per-key rate limits with "Burst" and "Refill"
+// HTTP headers:
+//
+//	curl -sD- -H "Burst: 3" -H "Refill: 1s" 'http://localhost:8080/?key'
 package main
 
 import (
@@ -19,6 +24,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -102,20 +108,50 @@ func (l *limiter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, helpText, len(l.buckets), int(l.burst), time.Duration(l.refillEvery))
 		return
 	}
+	var burst int
+	var refill time.Duration
+	const burstHeader = "Burst"
+	const refillHeader = "Refill"
+	if _, ok := r.Header[burstHeader]; ok {
+		n, err := strconv.ParseUint(r.Header.Get(burstHeader), 10, 32)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("%s header: %v", burstHeader, err), http.StatusBadRequest)
+			return
+		}
+		burst = int(n)
+	}
+	if _, ok := r.Header[refillHeader]; ok {
+		d, err := time.ParseDuration(r.Header.Get(refillHeader))
+		if err != nil {
+			http.Error(w, fmt.Sprintf("%s header: %v", refillHeader, err), http.StatusBadRequest)
+			return
+		}
+		refill = d
+	}
 	w.Header().Set("Cache-Control", "no-store")
-	if l.allow(r.URL.RawQuery) {
+	if l.allow(r.URL.RawQuery, burst, refill) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 	http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
 }
 
-func (l *limiter) allow(key string) bool {
+// allow reports true is given key does not exceed allowed rate. If burst
+// and/or refill values are positive, they are used instead of default burst
+// and refill values set on limiter.
+func (l *limiter) allow(key string, burst int, refill time.Duration) bool {
 	now := time.Now()
 	idx := int(l.hashFunc(key) % uint64(len(l.buckets)))
+	b, r := l.burst, l.refillEvery
+	if burst > 0 {
+		b = float64(burst)
+	}
+	if refill > 0 {
+		r = float64(refill)
+	}
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	return l.buckets[idx].allow(now, l.burst, l.refillEvery)
+	return l.buckets[idx].allow(now, b, r)
 }
 
 type bucket struct {
