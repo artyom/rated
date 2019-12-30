@@ -1,13 +1,15 @@
-// Command rated implements standalone rate-limiting service with http
+// Command rated implements standalone rate-limiting service with an HTTP
 // interface.
 //
-// Its http endpoint accepts requests with non-empty query string used as a key
-// to check against limited set of buckets to do token-based rate limiting.
+// Its HTTP endpoint accepts requests with non-empty query string used as a key
+// to check against a limited set of buckets to do token-based rate limiting.
+// It treats the whole query as-is as a key, so queries "foo=1&bar=2" and
+// "bar=2&foo=1" represent two distinct keys.
 //
-// It responds either with 204 is request should be allowed, or 429 if it
+// It responds either with 204 if a request should be allowed, or 429 if it
 // should be limited.
 //
-// Note that because of limited amount of buckets in use collisions are
+// Note that because of a limited amount of buckets in use collisions are
 // expected.
 package main
 
@@ -142,14 +144,14 @@ func (b *bucket) allow(now time.Time, burst, refillEvery float64) bool {
 }
 
 const helpText = `Accepts requests with non-empty query string used as a key to check
-against limited set of buckets to do token-based rate limiting.
+against a limited set of buckets to do token-based rate limiting.
 
 Expected responses:
 
 * 204 — request should be allowed;
 * 429 — request exceeded rate and should be limited.
 
-Note that because of limited amount of buckets in use collisions are expected.
+Note that because of a limited amount of buckets in use collisions are expected.
 
 Current settings are: %d buckets, each holds up to %d tokens
 and refills by one token every %v.
