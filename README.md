@@ -24,27 +24,27 @@ expected.
 
 Usage example:
 
-        rated -burst=2
+    rated -burst=2
 
 Execute curl three times in a row with the same query:
 
-        ~ ¶ for i in {1..3} ; do curl -sD- 'http://localhost:8080/?somekey' ;done
-        HTTP/1.1 204 No Content
-        Cache-Control: no-store
-        Date: Sat, 28 Dec 2019 10:38:29 GMT
+    ~ ¶ for i in {1..3} ; do curl -sD- 'http://localhost:8080/?somekey' ;done
+    HTTP/1.1 204 No Content
+    Cache-Control: no-store
+    Date: Sat, 28 Dec 2019 10:38:29 GMT
 
-        HTTP/1.1 204 No Content
-        Cache-Control: no-store
-        Date: Sat, 28 Dec 2019 10:38:29 GMT
+    HTTP/1.1 204 No Content
+    Cache-Control: no-store
+    Date: Sat, 28 Dec 2019 10:38:29 GMT
 
-        HTTP/1.1 429 Too Many Requests
-        Cache-Control: no-store
-        Content-Type: text/plain; charset=utf-8
-        X-Content-Type-Options: nosniff
-        Date: Sat, 28 Dec 2019 10:38:29 GMT
-        Content-Length: 18
+    HTTP/1.1 429 Too Many Requests
+    Cache-Control: no-store
+    Content-Type: text/plain; charset=utf-8
+    X-Content-Type-Options: nosniff
+    Date: Sat, 28 Dec 2019 10:38:29 GMT
+    Content-Length: 18
 
-        Too Many Requests
+    Too Many Requests
 
 Notice how the third request returns 429 because it exceeds a default burst of
 2 requests.
@@ -58,22 +58,22 @@ header value cannot be parsed, the endpoint responds with 400 Bad Request.
 
 Start rated with default settings and a burst of 2:
 
-        rated -burst=2
+    rated -burst=2
 
 Check limits for some key few times in a row as above, but now applying custom
 rate limits:
 
-        ~ ¶ for i in {1..3} ; do curl -sD- -H "Burst: 3" -H "Refill: 1s" 'http://localhost:8080/?otherkey' ;done
-        HTTP/1.1 204 No Content
-        Cache-Control: no-store
-        Date: Mon, 30 Dec 2019 05:34:19 GMT
+    ~ ¶ for i in {1..3} ; do curl -sD- -H "Burst: 3" -H "Refill: 1s" 'http://localhost:8080/?otherkey' ;done
+    HTTP/1.1 204 No Content
+    Cache-Control: no-store
+    Date: Mon, 30 Dec 2019 05:34:19 GMT
 
-        HTTP/1.1 204 No Content
-        Cache-Control: no-store
-        Date: Mon, 30 Dec 2019 05:34:19 GMT
+    HTTP/1.1 204 No Content
+    Cache-Control: no-store
+    Date: Mon, 30 Dec 2019 05:34:19 GMT
 
-        HTTP/1.1 204 No Content
-        Cache-Control: no-store
-        Date: Mon, 30 Dec 2019 05:34:19 GMT
+    HTTP/1.1 204 No Content
+    Cache-Control: no-store
+    Date: Mon, 30 Dec 2019 05:34:19 GMT
 
 Notice how all three requests are allowed because of the custom burst of 3.
