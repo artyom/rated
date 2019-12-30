@@ -26,7 +26,7 @@ Usage example:
 
         rated -burst=2
 
-Execute curl few times in a row with the same query:
+Execute curl three times in a row with the same query:
 
         ~ ¶ for i in {1..3} ; do curl -sD- 'http://localhost:8080/?somekey' ;done
         HTTP/1.1 204 No Content
@@ -46,8 +46,8 @@ Execute curl few times in a row with the same query:
 
         Too Many Requests
 
-Notice how third request returns 429 because it exceeds default burst of 2
-requests.
+Notice how the third request returns 429 because it exceeds a default burst of
+2 requests.
 
 ## Custom per-key limits
 
@@ -76,4 +76,4 @@ rate limits:
         Cache-Control: no-store
         Date: Mon, 30 Dec 2019 05:34:19 GMT
 
-Notice how all three requests are allowed because of custom burst of 3
+Notice how all three requests are allowed because of the custom burst of 3.
