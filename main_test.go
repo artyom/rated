@@ -60,6 +60,12 @@ func TestLimiter_ServeHTTP(t *testing.T) {
 		}
 	}
 
+	// reset buckets to make sure "bar" key doesn't collide with "foo" key to
+	// the same bucket
+	for i := range l.buckets {
+		l.buckets[i] = bucket{}
+	}
+
 	// per-key custom settings
 	want = []bool{true, false, false}
 	for i := 0; i < len(results); i++ {
