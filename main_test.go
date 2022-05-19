@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"hash/maphash"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -108,4 +109,17 @@ func rateLimitKey(client *http.Client, timeout time.Duration, ratedURL, key stri
 		return false, nil
 	}
 	return false, fmt.Errorf("unexpected response status from rated: %q", rresp.Status)
+}
+
+var sink uint64
+
+const testKey = "hello, world"
+
+func BenchmarkMaphash(b *testing.B) {
+	var h maphash.Hash
+	for i := 0; i < b.N; i++ {
+		h.Reset()
+		h.WriteString(testKey)
+		sink = h.Sum64()
+	}
 }

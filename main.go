@@ -22,6 +22,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"hash/maphash"
 	"net/http"
 	"os"
 	"strconv"
@@ -177,6 +178,18 @@ func (b *bucket) allow(now time.Time, burst, refillEvery float64) bool {
 		return true
 	}
 	return false
+}
+
+func newHasher() func(string) uint64 {
+	var mu sync.Mutex
+	var hasher maphash.Hash
+	return func(s string) uint64 {
+		mu.Lock()
+		defer mu.Unlock()
+		hasher.Reset()
+		hasher.WriteString(s)
+		return hasher.Sum64()
+	}
 }
 
 const helpText = `Accepts requests with non-empty query string used as a key to check
